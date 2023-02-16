@@ -21,6 +21,8 @@ builder.Services.AddDbContext<CommanderContext>(options =>
 
 // The Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore NuGet package provides ASP.NET Core middleware for Entity Framework Core error pages. This middleware helps to detect and diagnose errors with Entity Framework Core migrations.
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 // ======================================
 
 var app = builder.Build();
