@@ -5,5 +5,11 @@ namespace Commander.Data {
         IEnumerable<Command> GetAllCommands();
 
         Command? GetCommandById(int id);
+
+        Command CreateCommand(Command command);
+
+        Command UpdateCommand(Command command);
+
+        void DeleteCommand(int commandId);
     }
 }
