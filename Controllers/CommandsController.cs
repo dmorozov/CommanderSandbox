@@ -3,6 +3,7 @@ using Commander.Data;
 using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
 using Commander.Dtos;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace Commander.Controllers
 {
@@ -48,12 +49,41 @@ namespace Commander.Controllers
         }
 
         [HttpPut("{id}")]
-        public ActionResult<CommandReadDto> UpdateCommand(int id, CommandUpdateDto commandDto)
+        public ActionResult UpdateCommand(int id, CommandUpdateDto commandDto)
         {
-            Command command = _mapper.Map<Command>(commandDto);
-            command.Id = id;
-            command = _repository.UpdateCommand(command);
-            return Ok(_mapper.Map<CommandReadDto>(command));
+            Command? command = _repository.GetCommandById(id);
+            if (command == null) {
+                return NotFound();
+            }
+
+            // Update fields from commandDto -> command
+            _mapper.Map(commandDto, command);
+            _repository.UpdateCommand(command);
+            return NoContent();
+        }
+
+        /*
+            This is require extra packages to make it works:
+            Microsoft.AspNetCore.JsonPatch
+            Microsoft.AspNetCore.Mvc.NewtonsoftJson -> require setup! (See AddControllers().AddNewtonsoftJson ...)
+        */
+        [HttpPatch("{id}")]
+        public ActionResult PartialUpdateCommand(int id, JsonPatchDocument<CommandUpdateDto> patchDocument)
+        {
+            Command? command = _repository.GetCommandById(id);
+            if (command == null) {
+                return NotFound();
+            }
+
+            CommandUpdateDto commandDto = _mapper.Map<CommandUpdateDto>(command);
+            patchDocument.ApplyTo(commandDto);
+            if (!TryValidateModel(commandDto)) {
+                return ValidationProblem(ModelState);
+            }
+
+            _repository.UpdateCommand(_mapper.Map<Command>(commandDto));
+
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
