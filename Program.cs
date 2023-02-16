@@ -13,16 +13,23 @@ builder.Services.AddSwaggerGen();
 // ======================================
 // Define our DI dependencies
 // ======================================
-builder.Services.AddScoped<ICommanderRepository, CommanderRepository>();
 
-// Our DB configuration
+// Our domain configuration
 builder.Services.AddDbContext<CommanderContext>(options =>
   options.UseNpgsql(builder.Configuration.GetConnectionString("CommanderConnection")));
 
-// The Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore NuGet package provides ASP.NET Core middleware for Entity Framework Core error pages. This middleware helps to detect and diagnose errors with Entity Framework Core migrations.
+// The Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore NuGet package provides ASP.NET Core middleware for Entity Framework Core error pages. 
+// This middleware helps to detect and diagnose errors with Entity Framework Core migrations.
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+// Repositories
+builder.Services.AddScoped<ICommanderRepository, CommanderRepository>();
+
+// Service
+
+// Mappers
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 // ======================================
 
 var app = builder.Build();
