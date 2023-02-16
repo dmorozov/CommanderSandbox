@@ -13,7 +13,7 @@ builder.Services.AddSwaggerGen();
 // ======================================
 // Define our DI dependencies
 // ======================================
-builder.Services.AddSingleton<ICommanderRepository, MockCommanderRepository>();
+builder.Services.AddScoped<ICommanderRepository, CommanderRepository>();
 
 // Our DB configuration
 builder.Services.AddDbContext<CommanderContext>(options =>
@@ -30,12 +30,18 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    app.UseDeveloperExceptionPage();
+    app.UseMigrationsEndPoint();
 }
 else
 {
     // Entity Framework Core error pages
     app.UseDeveloperExceptionPage();
     app.UseMigrationsEndPoint();
+
+    app.UseExceptionHandler("/Error");
+    // app.UseHsts();
 }
 
 using (var scope = app.Services.CreateScope())
@@ -43,15 +49,15 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
 
     var context = services.GetRequiredService<CommanderContext>();
-    // Option #1: to create all db tables and initialize
-    // context.Database.EnsureCreated();
-    // DbInitializer.Initialize(context);
+    context.Database.EnsureCreated();
+    DbInitializer.Initialize(context);
 
-    // Option #2
+    // Migrations
     // Restore migrations, type in the terminal:
     // dotnet ef database update
     // To create migration:
     // dotnet ef migrations add InitialMigration
+    // TODO: Read more https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/?tabs=dotnet-core-cli
 }
 
 app.UseHttpsRedirection();
