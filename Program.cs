@@ -43,8 +43,15 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
 
     var context = services.GetRequiredService<CommanderContext>();
-    context.Database.EnsureCreated();
-    DbInitializer.Initialize(context);
+    // Option #1: to create all db tables and initialize
+    // context.Database.EnsureCreated();
+    // DbInitializer.Initialize(context);
+
+    // Option #2
+    // Restore migrations, type in the terminal:
+    // dotnet ef database update
+    // To create migration:
+    // dotnet ef migrations add InitialMigration
 }
 
 app.UseHttpsRedirection();
