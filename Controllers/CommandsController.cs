@@ -26,7 +26,7 @@ namespace Commander.Controllers
             return Ok(_mapper.Map<IEnumerable<CommandReadDto>>(commands));
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name="GetCommandById")]
         public ActionResult<CommandReadDto> GetCommandById(int id)
         {
             var command = _repository.GetCommandById(id);
@@ -36,14 +36,19 @@ namespace Commander.Controllers
         }
 
         [HttpPost]
-        public ActionResult<CommandReadDto> CreateCommand(CommandUpdateDto commandDto) {
+        public ActionResult<CommandReadDto> CreateCommand(CommandUpdateDto commandDto)
+        {
             Command command = _mapper.Map<Command>(commandDto);
             command = _repository.CreateCommand(command);
-            return Ok(_mapper.Map<CommandReadDto>(command));
+            CommandReadDto responsedto = _mapper.Map<CommandReadDto>(command);
+
+            // This way we will send back HTTP 201 and proper url to newly create entity in "Location" header
+            return CreatedAtRoute(nameof(GetCommandById), new { Id = responsedto.Id }, responsedto);
         }
 
         [HttpPut("{id}")]
-        public ActionResult<CommandReadDto> UpdateCommand(int id, CommandUpdateDto commandDto) {
+        public ActionResult<CommandReadDto> UpdateCommand(int id, CommandUpdateDto commandDto)
+        {
             Command command = _mapper.Map<Command>(commandDto);
             command.Id = id;
             command = _repository.UpdateCommand(command);
